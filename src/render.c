@@ -19,12 +19,15 @@ static void	put(t_game *g, t_img *i, int x, int y)
 
 void	render_map(t_game *g)
 {
+	int		y;
+	int		x;
 	char	c;
 
-	int y, x;
-	for (y = 0; y < g->h; ++y)
+	y = 0;
+	while (y < g->h)
 	{
-		for (x = 0; x < g->w; ++x)
+		x = 0;
+		while (x < g->w)
 		{
 			c = g->map[y][x];
 			put(g, &g->floor_i, x, y);
@@ -33,9 +36,15 @@ void	render_map(t_game *g)
 			else if (c == 'C')
 				put(g, &g->collect_i, x, y);
 			else if (c == 'E')
-				put(g, g->collect_left ? &g->exit_closed_i : &g->exit_open_i, x,
-					y);
+			{
+				if (g->collect_left > 0)
+					put(g, &g->exit_closed_i, x, y);
+				else
+					put(g, &g->exit_open_i, x, y);
+			}
+			x++;
 		}
+		y++;
 	}
 	put(g, &g->player_i, g->px, g->py);
 }

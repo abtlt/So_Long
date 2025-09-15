@@ -23,7 +23,7 @@ static void	require_args(int ac)
 
 int	main(int ac, char **av)
 {
-	t_game g;
+	t_game	g;
 
 	require_args(ac);
 	if (!ends_with(av[1], ".ber"))
@@ -33,10 +33,21 @@ int	main(int ac, char **av)
 	}
 	if (!load_map(av[1], &g))
 		return (1);
-	if (!check_map_rules(&g) || !flood_validate(&g))
-		return (cleanup(&g), 1);
+	if (!check_map_rules(&g))
+	{
+		cleanup(&g);
+		return (1);
+	}
+	if (!flood_validate(&g))
+	{
+		cleanup(&g);
+		return (1);
+	}
 	if (!init_game(&g))
-		return (cleanup(&g), 1);
+	{
+		cleanup(&g);
+		return (1);
+	}
 	render_map(&g);
 	mlx_key_hook(g.win, key_press, &g);
 	mlx_hook(g.win, ON_DESTROY, 0, close_win, &g);

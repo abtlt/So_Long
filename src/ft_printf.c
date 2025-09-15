@@ -31,33 +31,59 @@ static int	putnbr_rec(long n)
 	return (cnt);
 }
 
+static int	putstr_safe(const char *s)
+{
+	if (!s)
+		return (write(1, "(null)", 6));
+	return (write(1, s, ft_strlen(s)));
+}
+
+static int	handle_conv(const char *fmt, int *i, va_list *ap)
+{
+	int	out;
+
+	out = 0;
+	if (fmt[*i + 1] == 'd' || fmt[*i + 1] == 'i')
+	{
+		out += putnbr_rec(va_arg(*ap, int));
+		*i += 2;
+		return (out);
+	}
+	if (fmt[*i + 1] == 's')
+	{
+		out += putstr_safe(va_arg(*ap, char *));
+		*i += 2;
+		return (out);
+	}
+	if (fmt[*i + 1] == '%')
+	{
+		out += write(1, "%", 1);
+		*i += 2;
+		return (out);
+	}
+	out += write(1, &fmt[*i], 1);
+	*i += 1;
+	return (out);
+}
+
 int	ft_printf(const char *fmt, ...)
 {
-	va_list ap;
-	int i = 0;
-	int out = 0;
+	va_list	ap;
+	int		i;
+	int		out;
+
 	va_start(ap, fmt);
+	i = 0;
+	out = 0;
 	while (fmt[i])
 	{
 		if (fmt[i] == '%' && fmt[i + 1])
-		{
-			if (fmt[i + 1] == 'd' || fmt[i + 1] == 'i')
-				out += putnbr_rec(va_arg(ap, int)), i += 2;
-			else if (fmt[i + 1] == 's')
-			{
-				char *s = va_arg(ap, char *);
-				if (!s)
-					s = "(null)";
-				out += write(1, s, ft_strlen(s));
-				i += 2;
-			}
-			else if (fmt[i + 1] == '%')
-				out += write(1, "%", 1), i += 2;
-			else
-				out += write(1, &fmt[i++], 1);
-		}
+			out += handle_conv(fmt, &i, &ap);
 		else
-			out += write(1, &fmt[i++], 1);
+		{
+			out += write(1, &fmt[i], 1);
+			i++;
+		}
 	}
 	va_end(ap);
 	return (out);

@@ -14,22 +14,36 @@
 
 static int	is_move_key(int k)
 {
-	return (k == KEY_W || k == KEY_A || k == KEY_S || k == KEY_D
-		|| k == KEY_W_MAC || k == KEY_A_MAC || k == KEY_S_MAC || k == KEY_D_MAC
-		|| k == KEY_UP || k == KEY_LEFT || k == KEY_DOWN || k == KEY_RIGHT);
+	if (k == KEY_W)
+		return (1);
+	if (k == KEY_A)
+		return (1);
+	if (k == KEY_S)
+		return (1);
+	if (k == KEY_D)
+		return (1);
+	if (k == KEY_UP)
+		return (1);
+	if (k == KEY_LEFT)
+		return (1);
+	if (k == KEY_DOWN)
+		return (1);
+	if (k == KEY_RIGHT)
+		return (1);
+	return (0);
 }
 
 static void	apply_delta(int key, int *dx, int *dy)
 {
 	*dx = 0;
 	*dy = 0;
-	if (key == KEY_W || key == KEY_W_MAC || key == KEY_UP)
+	if (key == KEY_W || key == KEY_UP)
 		*dy = -1;
-	if (key == KEY_S || key == KEY_S_MAC || key == KEY_DOWN)
+	if (key == KEY_S || key == KEY_DOWN)
 		*dy = 1;
-	if (key == KEY_A || key == KEY_A_MAC || key == KEY_LEFT)
+	if (key == KEY_A || key == KEY_LEFT)
 		*dx = -1;
-	if (key == KEY_D || key == KEY_D_MAC || key == KEY_RIGHT)
+	if (key == KEY_D || key == KEY_RIGHT)
 		*dx = 1;
 }
 
@@ -39,7 +53,7 @@ static void	try_move(t_game *g, int nx, int ny)
 
 	dest = g->map[ny][nx];
 	if (dest == '1')
-		return ; /* wall */
+		return ;
 	if (dest == 'E')
 	{
 		if (g->collect_left == 0)
@@ -48,7 +62,7 @@ static void	try_move(t_game *g, int nx, int ny)
 			ft_printf("Moves: %d\n", g->moves);
 			close_win(g);
 		}
-		return ; /* block exit until all C */
+		return ;
 	}
 	if (dest == 'C')
 	{
@@ -64,8 +78,10 @@ static void	try_move(t_game *g, int nx, int ny)
 
 int	key_press(int key, t_game *g)
 {
-	int dx, dy;
-	if (key == KEY_ESC || key == KEY_ESC_MAC)
+	int	dx;
+	int	dy;
+
+	if (key == KEY_ESC)
 		return (close_win(g));
 	if (is_move_key(key))
 	{

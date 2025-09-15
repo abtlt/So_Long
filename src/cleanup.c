@@ -18,33 +18,39 @@ void	free_map(char **m)
 
 	if (!m)
 		return ;
-	for (i = 0; m[i]; ++i)
+	i = 0;
+	while (m[i])
+	{
 		free(m[i]);
+		i++;
+	}
 	free(m);
 }
 
-static void	destroy_img(void *mlx, t_img *im)
+static void	destroy_images(t_game *g)
 {
-	if (im->ptr)
-		mlx_destroy_image(mlx, im->ptr);
-	im->ptr = NULL;
+	if (g->floor_i.ptr)
+		mlx_destroy_image(g->mlx, g->floor_i.ptr);
+	if (g->wall_i.ptr)
+		mlx_destroy_image(g->mlx, g->wall_i.ptr);
+	if (g->player_i.ptr)
+		mlx_destroy_image(g->mlx, g->player_i.ptr);
+	if (g->collect_i.ptr)
+		mlx_destroy_image(g->mlx, g->collect_i.ptr);
+	if (g->exit_closed_i.ptr)
+		mlx_destroy_image(g->mlx, g->exit_closed_i.ptr);
+	if (g->exit_open_i.ptr)
+		mlx_destroy_image(g->mlx, g->exit_open_i.ptr);
+	g->floor_i.ptr = NULL;
+	g->wall_i.ptr = NULL;
+	g->player_i.ptr = NULL;
+	g->collect_i.ptr = NULL;
+	g->exit_closed_i.ptr = NULL;
+	g->exit_open_i.ptr = NULL;
 }
 
-void	cleanup(t_game *g)
+static void	destroy_window_and_display(t_game *g)
 {
-	if (!g)
-		return ;
-	if (g->mlx && g->win)
-		mlx_clear_window(g->mlx, g->win);
-	if (g->mlx)
-	{
-		destroy_img(g->mlx, &g->floor_i);
-		destroy_img(g->mlx, &g->wall_i);
-		destroy_img(g->mlx, &g->player_i);
-		destroy_img(g->mlx, &g->collect_i);
-		destroy_img(g->mlx, &g->exit_closed_i);
-		destroy_img(g->mlx, &g->exit_open_i);
-	}
 	if (g->mlx && g->win)
 	{
 		mlx_destroy_window(g->mlx, g->win);
@@ -56,5 +62,16 @@ void	cleanup(t_game *g)
 		free(g->mlx);
 		g->mlx = NULL;
 	}
+}
+
+void	cleanup(t_game *g)
+{
+	if (!g)
+		return ;
+	if (g->mlx && g->win)
+		mlx_clear_window(g->mlx, g->win);
+	if (g->mlx)
+		destroy_images(g);
+	destroy_window_and_display(g);
 	free_map(g->map);
 }

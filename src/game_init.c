@@ -14,15 +14,25 @@
 
 static void	find_player(t_game *g)
 {
-	int y, x;
-	for (y = 0; y < g->h; ++y)
-		for (x = 0; x < g->w; ++x)
+	int	y;
+	int	x;
+
+	y = 0;
+	while (y < g->h)
+	{
+		x = 0;
+		while (x < g->w)
+		{
 			if (g->map[y][x] == 'P')
 			{
 				g->px = x;
 				g->py = y;
 				return ;
 			}
+			x++;
+		}
+		y++;
+	}
 }
 
 int	init_game(t_game *g)

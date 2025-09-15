@@ -20,52 +20,69 @@ static char	**dup_map(t_game *g)
 	cp = (char **)ft_calloc(g->h + 1, sizeof(char *));
 	if (!cp)
 		return (NULL);
-	for (y = 0; y < g->h; ++y)
+	y = 0;
+	while (y < g->h)
 	{
 		cp[y] = ft_strdup(g->map[y]);
 		if (!cp[y])
-			return (free_map(cp), (char **)0);
+		{
+			free_map(cp);
+			return (NULL);
+		}
+		y++;
 	}
 	return (cp);
 }
 
-static void	ff(char **m, int h, int w, int y, int x)
+static void	ff(t_game *g, char **m, int y, int x)
 {
-	if (y < 0 || x < 0 || y >= h || x >= w)
+	if (y < 0 || x < 0 || y >= g->h || x >= g->w)
 		return ;
 	if (m[y][x] == '1' || m[y][x] == 'V')
 		return ;
 	m[y][x] = 'V';
-	ff(m, h, w, y + 1, x);
-	ff(m, h, w, y - 1, x);
-	ff(m, h, w, y, x + 1);
-	ff(m, h, w, y, x - 1);
+	ff(g, m, y + 1, x);
+	ff(g, m, y - 1, x);
+	ff(g, m, y, x + 1);
+	ff(g, m, y, x - 1);
 }
 
 int	flood_validate(t_game *g)
 {
 	char	**m;
+	int		y;
+	int		x;
 	int		c_ok;
 	int		e_ok;
 
-	int y, x;
-	c_ok = 0;
-	e_ok = 0;
 	m = dup_map(g);
 	if (!m)
 		return (write(2, "Error\nalloc\n", 12), 0);
-	ff(m, g->h, g->w, g->py, g->px);
-	for (y = 0; y < g->h; ++y)
+	ff(g, m, g->py, g->px);
+	y = 0;
+	c_ok = 0;
+	e_ok = 0;
+	while (y < g->h)
 	{
-		for (x = 0; x < g->w; ++x)
+		x = 0;
+		while (x < g->w)
 		{
 			if (g->map[y][x] == 'C' && m[y][x] == 'V')
 				c_ok++;
-			if (g->map[y][x] == 'E' && ((y + 1 < g->h && m[y + 1][x] == 'V')
-					|| (y > 0 && m[y - 1][x] == 'V') || (x + 1 < g->w && m[y][x
-						+ 1] == 'V') || (x > 0 && m[y][x - 1] == 'V')))
-				e_ok = 1;
+			if (g->map[y][x] == 'E')
+			{
+				if (y + 1 < g->h && m[y + 1][x] == 'V')
+					e_ok = 1;
+				if (y > 0 && m[y - 1][x] == 'V')
+					e_ok = 1;
+				if (x + 1 < g->w && m[y][x + 1] == 'V')
+					e_ok = 1;
+				if (x > 0 && m[y][x - 1] == 'V')
+					e_ok = 1;
+			}
+			x++;
 		}
+		y++;
 	}
 	free_map(m);
 	if (c_ok != g->collect_total || !e_ok)
