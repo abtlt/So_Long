@@ -77,5 +77,6 @@ char		**split_lines(const char *s);
 char		*read_all(int fd);
 int			ends_with(const char *s, const char *suf);
 int			ft_printf(const char *fmt, ...);
+int			valid_chars_and_locate_player(t_game *g);
 
 #endif

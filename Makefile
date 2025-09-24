@@ -1,5 +1,5 @@
 # **************************************************************************** #
-#                                   so_long                                   #
+#                                   so_long                                    #
 # **************************************************************************** #
 
 NAME := so_long
@@ -19,7 +19,10 @@ SRCS := \
 	src/error.c \
 	src/ft_printf.c \
 	src/parse_utils.c \
-	src/str_utils.c
+	src/str_utils.c \
+	src/parse_rules_bis.c \
+	src/parse_read_all.c \
+	src/parse_split_lines.c
 
 OBJS := $(SRCS:.c=.o)
 CC := cc

@@ -34,25 +34,33 @@ static int	count_char(char **m, char c)
 	return (cnt);
 }
 
-int	load_map(const char *path, t_game *g)
+static void	init_game_struct(t_game *g)
 {
-	char	*buf;
-	int		fd;
-	int		i;
-
 	g->map = NULL;
 	g->mlx = NULL;
 	g->win = NULL;
 	g->moves = 0;
 	g->collect_total = 0;
 	g->collect_left = 0;
+}
+
+static char	*read_map_file(const char *path)
+{
+	int		fd;
+	char	*buf;
+
 	fd = open(path, O_RDONLY);
 	if (fd < 0)
-		return (write(2, "Error\nfailed to open map\n", 25), 0);
+		return (write(2, "Error\nfailed to open map\n", 25), NULL);
 	buf = read_all(fd);
 	close(fd);
 	if (!buf)
-		return (write(2, "Error\nfailed to read map\n", 25), 0);
+		return (write(2, "Error\nfailed to read map\n", 25), NULL);
+	return (buf);
+}
+
+static int	assign_map_data(t_game *g, char *buf)
+{
 	g->map = split_lines(buf);
 	free(buf);
 	if (!g->map || !g->map[0])
@@ -63,8 +71,18 @@ int	load_map(const char *path, t_game *g)
 	g->w = ft_strlen(g->map[0]);
 	g->collect_total = count_char(g->map, 'C');
 	g->collect_left = g->collect_total;
-	i = 0;
-	while (i < g->h)
-		i++;
+	return (1);
+}
+
+int	load_map(const char *path, t_game *g)
+{
+	char	*buf;
+
+	init_game_struct(g);
+	buf = read_map_file(path);
+	if (!buf)
+		return (0);
+	if (!assign_map_data(g, buf))
+		return (0);
 	return (1);
 }

@@ -38,7 +38,7 @@ static void	ff(t_game *g, char **m, int y, int x)
 {
 	if (y < 0 || x < 0 || y >= g->h || x >= g->w)
 		return ;
-	if (m[y][x] == '1' || m[y][x] == 'V')
+	if (m[y][x] == '1' || m[y][x] == 'V' || m[y][x] == 'E')
 		return ;
 	m[y][x] = 'V';
 	ff(g, m, y + 1, x);
@@ -47,46 +47,69 @@ static void	ff(t_game *g, char **m, int y, int x)
 	ff(g, m, y, x - 1);
 }
 
-int	flood_validate(t_game *g)
+static int	check_collectibles(t_game *g, char **m)
 {
-	char	**m;
-	int		y;
-	int		x;
-	int		c_ok;
-	int		e_ok;
+	int	y;
+	int	x;
+	int	found;
 
-	m = dup_map(g);
-	if (!m)
-		return (write(2, "Error\nalloc\n", 12), 0);
-	ff(g, m, g->py, g->px);
 	y = 0;
-	c_ok = 0;
-	e_ok = 0;
+	found = 0;
 	while (y < g->h)
 	{
 		x = 0;
 		while (x < g->w)
 		{
 			if (g->map[y][x] == 'C' && m[y][x] == 'V')
-				c_ok++;
+				found++;
+			x++;
+		}
+		y++;
+	}
+	return (found == g->collect_total);
+}
+
+static int	check_exit(t_game *g, char **m)
+{
+	int	y;
+	int	x;
+
+	y = 0;
+	while (y < g->h)
+	{
+		x = 0;
+		while (x < g->w)
+		{
 			if (g->map[y][x] == 'E')
 			{
-				if (y + 1 < g->h && m[y + 1][x] == 'V')
-					e_ok = 1;
-				if (y > 0 && m[y - 1][x] == 'V')
-					e_ok = 1;
-				if (x + 1 < g->w && m[y][x + 1] == 'V')
-					e_ok = 1;
-				if (x > 0 && m[y][x - 1] == 'V')
-					e_ok = 1;
+				if ((y + 1 < g->h && m[y + 1][x] == 'V')
+					|| (y > 0 && m[y - 1][x] == 'V')
+					|| (x + 1 < g->w && m[y][x + 1] == 'V')
+					|| (x > 0 && m[y][x - 1] == 'V'))
+					return (1);
 			}
 			x++;
 		}
 		y++;
 	}
+	return (0);
+}
+
+int	flood_validate(t_game *g)
+{
+	char	**m;
+	int		valid;
+
+	m = dup_map(g);
+	if (!m)
+		return (write(2, "Error\nalloc\n", 12), 0);
+	ff(g, m, g->py, g->px);
+	valid = (check_collectibles(g, m) && check_exit(g, m));
 	free_map(m);
-	if (c_ok != g->collect_total || !e_ok)
-		return (write(2, "Error\nno valid path to collect all and reach exit\n",
-				47), 0);
+	if (!valid)
+	{
+		write(2, "Error\nno valid path to collect all and reach exit\n", 50);
+		return (0);
+	}
 	return (1);
 }
